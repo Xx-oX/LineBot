@@ -136,6 +136,12 @@ flex_msg_menu = {
         "text": "Keep your own diary on \"Line\"!!",
         "color": "#aaaaaa",
         "size": "xxs"
+      },
+      {
+        "type": "text",
+        "text": "Type \"back\" to return to this menu!!",
+        "color": "#aaaaaa",
+        "size": "xxs"
       }
     ]
   },

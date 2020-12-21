@@ -16,7 +16,7 @@ class TocMachine(GraphMachine):
 
     def is_going_to_intro(self, event):
         text = event.message.text
-        return text.lower() == "introduction"
+        return text.lower() == "?"
 
     def is_going_to_fsm(self, event):
         text = event.message.text
@@ -44,13 +44,25 @@ class TocMachine(GraphMachine):
     def is_going_to_read_show(self, event):
         return True
 
+    def is_going_back_to_read(self, event):
+        text = event.message.text
+        return text.lower() != "back"
+
     def is_going_to_change_select(self, event):
         return True
 
     def is_going_to_change_content(self, event):
         return True
 
+    def is_going_back_to_menu(self, event):
+        text = event.message.text
+        return text.lower() == "back"
+
     # vertices
+
+    def on_enter_user(self, event):
+        reply_token = event.reply_token
+        send_text_message(reply_token, "Welcome~ Type \"?\" to see the info.")
 
     def on_enter_intro(self, event):
         reply_token = event.reply_token
@@ -86,16 +98,16 @@ class TocMachine(GraphMachine):
     def on_enter_write_content(self, event):
         d = date.today()
         c = event.message.text
-        reply_token = event.reply_token
         try:
             with Database() as db:
                 if(db.getSize(d) == 0):
                     db.insert((None, d, c))
-                    send_text_message(reply_token, "saved~")
+                    reply =  "saved~"
                 else:
-                    send_text_message(reply_token, "Already written today :( \nUse change~")
+                    reply =  "Already written today : ( \nUse change~"
         finally:
-            self.go_back()
+            reply_token = event.reply_token
+            send_text_message(reply_token, reply)
 
     def on_enter_read(self, event):
         reply_token = event.reply_token
@@ -108,17 +120,17 @@ class TocMachine(GraphMachine):
             return
         d = event.postback.params["date"]
         print(d)
+        reply = "Nothing happended on this day : ("
         try:
             with Database() as db:
                 content = db.read(d)
                 if len(content) == 0:
-                    reply = "Nothing happended on this day :("
+                    reply = "Nothing happended on this day : ("
                 else:
-                    reply = content[2]
+                    reply = content[0][2]
         finally:
             reply_token = event.reply_token
             send_text_message(reply_token, reply)
-            self.go_back()
 
     def on_enter_change(self, event):
         reply_token = event.reply_token
@@ -147,4 +159,3 @@ class TocMachine(GraphMachine):
         finally:
             reply_token = event.reply_token
             send_text_message(reply_token, "Change saved : )")
-            self.go_back()

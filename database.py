@@ -21,7 +21,7 @@ class Database:
     def read(self, date):
         cur = self.conn.cursor()
         cur.execute("SELECT * FROM diary WHERE date = ?", (date,))
-        return cur.fetchall()[0]
+        return cur.fetchall()
 
     def getSize(self, date):
         cur = self.conn.cursor()

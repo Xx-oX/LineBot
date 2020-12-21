@@ -231,3 +231,9 @@ flex_msg_datepicker = {
     }
   }
 }
+
+img_fsm = {
+    "type": "image",
+    "originalContentUrl": "https://imgur.com/Yhf65gd.png",
+    "previewImageUrl": "https://imgur.com/Yhf65gd.png"
+}

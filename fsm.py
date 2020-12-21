@@ -2,8 +2,8 @@ from transitions.extensions import GraphMachine
 from linebot.models import PostbackEvent
 from datetime import date
 
-from utils import send_text_message, send_flex_message, send_date_picker
-from layout import flex_msg_intro, flex_msg_menu, flex_msg_datepicker
+from utils import send_text_message, send_flex_message, send_date_picker, send_image_url
+from layout import flex_msg_intro, flex_msg_menu, flex_msg_datepicker, img_fsm
 from database import Database
 
 
@@ -60,15 +60,10 @@ class TocMachine(GraphMachine):
 
     # vertices
 
-    def on_enter_user(self, event):
-        reply_token = event.reply_token
-        send_text_message(reply_token, "Welcome~ Type \"?\" to see the info.")
-
     def on_enter_intro(self, event):
         reply_token = event.reply_token
         flex_msg = flex_msg_intro
         send_flex_message(reply_token, flex_msg)
-
         self.go_back()
 
     def on_exit_intro(self):
@@ -76,7 +71,7 @@ class TocMachine(GraphMachine):
 
     def on_enter_fsm(self, event):
         reply_token = event.reply_token
-        send_text_message(reply_token, "FSM")
+        send_image_url(reply_token, "https://imgur.com/Yhf65gd.png")
         self.go_back()
 
     def on_exit_fsm(self):

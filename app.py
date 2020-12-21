@@ -84,11 +84,11 @@ machine = TocMachine(
         },
         {
             "trigger": "advance",
-            "source": [ "write", "read", "change", "write_content", "read_show", "change_select", "change_content"],
+            "source": ["write", "read", "change", "write_content", "read_show", "change_select", "change_content"],
             "dest": "menu",
             "conditions": "is_going_back_to_menu",
         },
-        {"trigger": "go_back", "source": ["intro", "fsm", "menu", "write", "read", "change", "write_content"], "dest": "user"}
+        {"trigger": "go_back", "source": ["intro", "fsm", "menu"], "dest": "user"}
     ],
     initial="user",
     auto_transitions=False,
@@ -168,7 +168,11 @@ def webhook_handler():
         print(f"REQUEST BODY: \n{body}")
         response = machine.advance(event)
         if response == False:
-            send_text_message(event.reply_token, "Not Entering any State")
+            listState = ["write", "read", "change", "write_content", "read_show", "change_select", "change_content"]
+            if machine.state in listState:
+                send_text_message(event.reply_token, "Type \"back\" to go back ><")
+            else:
+                send_text_message(event.reply_token, "Not Entering any State")
 
     return "OK"
 

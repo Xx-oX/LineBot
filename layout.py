@@ -225,15 +225,9 @@ flex_msg_datepicker = {
       "label": "Select Time",
       "data": "returnData",
       "mode": "date",
-      "max": "2020-12-31",
-      "min": "2000-01-01",
+      "max": "2999-12-31",
+      "min": "1900-01-01",
       "initial": "2020-01-01"
     }
   }
-}
-
-img_fsm = {
-    "type": "image",
-    "originalContentUrl": "https://imgur.com/Yhf65gd.png",
-    "previewImageUrl": "https://imgur.com/Yhf65gd.png"
 }

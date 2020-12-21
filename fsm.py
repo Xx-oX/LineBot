@@ -3,7 +3,7 @@ from linebot.models import PostbackEvent
 from datetime import date
 
 from utils import send_text_message, send_flex_message, send_date_picker, send_image_url
-from layout import flex_msg_intro, flex_msg_menu, flex_msg_datepicker, img_fsm
+from layout import flex_msg_intro, flex_msg_menu, flex_msg_datepicker
 from database import Database
 
 

@@ -84,7 +84,7 @@ machine = TocMachine(
         },
         {
             "trigger": "advance",
-            "source": ["write", "read", "change", "write_content", "read_show", "change_select", "change_content"],
+            "source": ["menu", "write", "read", "change", "write_content", "read_show", "change_select", "change_content"],
             "dest": "menu",
             "conditions": "is_going_back_to_menu",
         },

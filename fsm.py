@@ -1,12 +1,16 @@
 from transitions.extensions import GraphMachine
+from linebot.models import PostbackEvent
+from datetime import date
 
-from utils import send_text_message, send_flex_message
-from layout import flex_message
+from utils import send_text_message, send_flex_message, send_date_picker
+from layout import flex_msg_intro, flex_msg_menu, flex_msg_datepicker
+from database import Database
 
 
 class TocMachine(GraphMachine):
     def __init__(self, **machine_configs):
         self.machine = GraphMachine(model=self, **machine_configs)
+        self.param_date=""
 
     # edges
 
@@ -20,7 +24,7 @@ class TocMachine(GraphMachine):
 
     def is_going_to_menu(self, event):
         text = event.message.text
-        return text.lower() == "start"
+        return text.lower() == "hi"
 
     def is_going_to_write(self, event):
         text = event.message.text
@@ -34,15 +38,25 @@ class TocMachine(GraphMachine):
         text = event.message.text
         return text.lower() == "change"
 
-    def go_back_to_menu(self, event):
-        text = event.message.text
-        return text.lower() == "menu"
+    def is_going_to_write_content(self, event):
+        return True
+
+    def is_going_to_read_show(self, event):
+        return True
+
+    def is_going_to_change_select(self, event):
+        return True
+
+    def is_going_to_change_content(self, event):
+        return True
 
     # vertices
 
     def on_enter_intro(self, event):
         reply_token = event.reply_token
-        send_text_message(reply_token, "Introduction")
+        flex_msg = flex_msg_intro
+        send_flex_message(reply_token, flex_msg)
+
         self.go_back()
 
     def on_exit_intro(self):
@@ -58,30 +72,79 @@ class TocMachine(GraphMachine):
 
     def on_enter_menu(self, event):
         reply_token = event.reply_token
-        # send_text_message(reply_token, "Opening the diary...")
-        flex_msg = flex_message
-        send_flex_message(reply_token, "Choose what you want to do", flex_msg)
+        flex_msg = flex_msg_menu
+        send_flex_message(reply_token, flex_msg)
 
     def on_exit_menu(self, event):
         print("Leaving menu...")
 
     def on_enter_write(self, event):
+        d = date.today()
         reply_token = event.reply_token
-        send_text_message(reply_token, "write")
+        send_text_message(reply_token, str(d) + " :")
 
-    def on_exit_write(self, event):
-        print("Leaving write...")
+    def on_enter_write_content(self, event):
+        d = date.today()
+        c = event.message.text
+        reply_token = event.reply_token
+        try:
+            with Database() as db:
+                if(db.getSize(d) == 0):
+                    db.insert((None, d, c))
+                    send_text_message(reply_token, "saved~")
+                else:
+                    send_text_message(reply_token, "Already written today :( \nUse change~")
+        finally:
+            self.go_back()
 
     def on_enter_read(self, event):
         reply_token = event.reply_token
-        send_text_message(reply_token, "read")
+        dp = flex_msg_datepicker
+        send_date_picker(reply_token, dp)
 
-    def on_exit_read(self, event):
-        print("Leaving read...")
+    def on_enter_read_show(self, event):
+        if not isinstance(event, PostbackEvent):
+            self.go_back()
+            return
+        d = event.postback.params["date"]
+        print(d)
+        try:
+            with Database() as db:
+                content = db.read(d)
+                if len(content) == 0:
+                    reply = "Nothing happended on this day :("
+                else:
+                    reply = content[2]
+        finally:
+            reply_token = event.reply_token
+            send_text_message(reply_token, reply)
+            self.go_back()
 
     def on_enter_change(self, event):
         reply_token = event.reply_token
-        send_text_message(reply_token, "change")
+        dp = flex_msg_datepicker
+        send_date_picker(reply_token, dp)
 
-    def on_exit_change(self, event):
-        print("Leaving change...")
+    def on_enter_change_select(self, event):
+        if not isinstance(event, PostbackEvent):
+            self.go_back()
+            return
+        reply_token = event.reply_token
+        d = event.postback.params["date"]
+        print(d)
+        self.param_date = d
+        send_text_message(reply_token, str(d) + " :")
+
+    def on_enter_change_content(self, event):
+        d = self.param_date
+        c = event.message.text
+        try:
+            with Database() as db:
+                if(db.getSize(d) == 0):
+                    db.insert((None, d, c))
+                else:
+                    db.update(d, c)
+        finally:
+            reply_token = event.reply_token
+            send_text_message(reply_token, "Change saved : )")
+            self.go_back()

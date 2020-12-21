@@ -5,7 +5,7 @@ from flask import Flask, jsonify, request, abort, send_file
 from dotenv import load_dotenv
 from linebot import LineBotApi, WebhookParser
 from linebot.exceptions import InvalidSignatureError
-from linebot.models import MessageEvent, TextMessage, TextSendMessage
+from linebot.models import MessageEvent, TextMessage, PostbackEvent, TextSendMessage
 
 from fsm import TocMachine
 from utils import send_text_message
@@ -14,17 +14,17 @@ load_dotenv()
 
 
 machine = TocMachine(
-    states=["user", "intro", "fsm", "menu", "write", "read", "change"],
+    states=["user", "intro", "fsm", "menu", "write", "read", "change", "write_content", "read_show", "change_select", "change_content"],
     transitions=[
         {
             "trigger": "advance",
-            "source": "user",
+            "source": "menu",
             "dest": "intro",
             "conditions": "is_going_to_intro",
         },
         {
             "trigger": "advance",
-            "source": "user",
+            "source": "menu",
             "dest": "fsm",
             "conditions": "is_going_to_fsm",
         },
@@ -52,12 +52,31 @@ machine = TocMachine(
             "dest": "change",
             "conditions": "is_going_to_change",
         },
-        {   "trigger": "advance", 
-            "source": ["write", "read", "change"], 
-            "dest": "menu", 
-            "conditions": "go_back_to_menu"
+        {
+            "trigger": "advance",
+            "source": "write",
+            "dest": "write_content",
+            "conditions": "is_going_to_write_content",
         },
-        {"trigger": "go_back", "source": ["intro", "fsm", "menu"], "dest": "user"}
+        {
+            "trigger": "advance",
+            "source": "read",
+            "dest": "read_show",
+            "conditions": "is_going_to_read_show",
+        },
+        {
+            "trigger": "advance",
+            "source": "change",
+            "dest": "change_select",
+            "conditions": "is_going_to_change_select",
+        },
+        {
+            "trigger": "advance",
+            "source": "change_select",
+            "dest": "change_content",
+            "conditions": "is_going_to_change_content",
+        },
+        {"trigger": "go_back", "source": ["intro", "fsm", "menu", "write", "read", "change", "write_content", "read_show",  "change_select", "change_content"], "dest": "user"}
     ],
     initial="user",
     auto_transitions=False,
@@ -123,12 +142,16 @@ def webhook_handler():
 
     # if event is MessageEvent and message is TextMessage, then echo text
     for event in events:
-        if not isinstance(event, MessageEvent):
+        if isinstance(event, PostbackEvent):
+            pass
+        elif isinstance(event, MessageEvent):
+            if not isinstance(event.message, TextMessage):
+                continue
+            if not isinstance(event.message.text, str):
+                continue
+        else:
             continue
-        if not isinstance(event.message, TextMessage):
-            continue
-        if not isinstance(event.message.text, str):
-            continue
+        
         print(f"\nFSM STATE: {machine.state}")
         print(f"REQUEST BODY: \n{body}")
         response = machine.advance(event)

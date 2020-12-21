@@ -6,9 +6,13 @@
 
 ## Introduction
 
+
 A Line bot based on a finite state machine.
+
 Keep and share your memories with others.
+
 Or simply use it as a diary (as the name shows).
+
 
 ### [github repo](https://github.com/Xx-oX/Secret-Diary)
 

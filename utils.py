@@ -21,7 +21,7 @@ def send_flex_message(reply_token, flex_msg):
 
 def send_date_picker(reply_token, datepicker):
     line_bot_api = LineBotApi(channel_access_token)
-    line_bot_api.reply_message(reply_token, FlexSendMessage("data_picker", datepicker))
+    line_bot_api.reply_message(reply_token, FlexSendMessage("date_picker", datepicker))
 
     return "OK"
 

@@ -225,8 +225,8 @@ flex_msg_datepicker = {
       "label": "Select Time",
       "data": "returnData",
       "mode": "date",
-      "max": "2999-12-31",
-      "min": "1900-01-01",
+      "max": "2050-12-31",
+      "min": "2000-01-01",
       "initial": "2020-01-01"
     }
   }

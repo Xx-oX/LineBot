@@ -172,7 +172,7 @@ def webhook_handler():
             if machine.state in listState:
                 send_text_message(event.reply_token, "Type \"back\" to go back ><")
             else:
-                send_text_message(event.reply_token, "Not Entering any State")
+                send_text_message(event.reply_token, "Type \"?\" to get more info : )")
 
     return "OK"
 

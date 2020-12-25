@@ -2,6 +2,8 @@
 # Secret Diary
 >2020 TOC Final Project ~Line bot 
 
+[![Maintainability](https://api.codeclimate.com/v1/badges/88faafd1513abcbc50d6/maintainability)](https://codeclimate.com/github/Xx-oX/Secret-Diary/maintainability)
+
 ### *The Secret is, There is No Secret.*
 
 ## Introduction
